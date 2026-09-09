@@ -29,9 +29,10 @@ namespace PROGRAMMING
 
             // Input section
             DrawDivider();
-
-            string userInput = ReadInputWithDefault("Please enter your name", "User");
-            TypeWrite($"Hello, {userInput}!", ConsoleColor.Green);
+            response.DrawDivider();
+            Console.WriteLine("Please enter your name ?");
+            string userInput = Console.ReadLine();
+            response.TypeWrite($"Hello, {userInput}!", ConsoleColor.Green);
             Thread.Sleep(150);
 
             string userFeeling = ReadInputWithDefault("How are you doing today", "okay");

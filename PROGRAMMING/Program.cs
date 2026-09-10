@@ -1,138 +1,123 @@
-﻿using System;
-using System.Collections.Generic;
+using System;
+using System.IO;
 using System.Media;
 using System.Threading;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace PROGRAMMING
 {
-    internal class Program
+    class Program
     {
         static void Main(string[] args)
         {
             LOGO logo = new LOGO();
             logo.displayLogo();
 
-            // Play startup audio (wav)
-            SoundPlayer player = new SoundPlayer(@"C:\Users\Student\source\repos\PROGRAMMING\PROGRAMMING\voice\Recording.wav");
-            player.PlaySync();
+            Response response = new Response();
 
-            // Small pause before UI
+            // Safe audio player initialization
+            string audioPath = @"C:\Users\Student\source\repos\PROGRAMMING\PROGRAMMING\voice\Recording.wav";
+            if (File.Exists(audioPath))
+            {
+                try
+                {
+                    SoundPlayer player = new SoundPlayer(audioPath);
+                    player.PlaySync();
+                }
+                catch
+                {
+                    // Fallback when sound playback fails
+                }
+            }
+
             Thread.Sleep(200);
 
-            // Top banner
-            DrawSectionHeader("WELCOME");
+            // Display main app banner
+            response.DrawSectionHeader("CYBERSECURITY AWARENESS BOT");
 
-            TypeWrite("Hello, World!", ConsoleColor.Cyan);
-            TypeWrite("Welcome to the interactive console demo.", ConsoleColor.DarkCyan);
+            response.TypeWrite("Hello! Welcome to the Cybersecurity Awareness Assistant.", ConsoleColor.Cyan);
             Thread.Sleep(250);
 
-            // Input section
-            DrawDivider();
-            response.DrawDivider();
-            Console.WriteLine("Please enter your name ?");
-            string userInput = Console.ReadLine();
-            response.TypeWrite($"Hello, {userInput}!", ConsoleColor.Green);
-            Thread.Sleep(150);
-
-            string userFeeling = ReadInputWithDefault("How are you doing today", "okay");
-            TypeWrite($"You are feeling {userFeeling} today.", ConsoleColor.Yellow);
-            Thread.Sleep(150);
-
-            string userPurpose = ReadInputWithDefault("What's your purpose", "learning");
-            TypeWrite($"Your purpose is {userPurpose}.", ConsoleColor.Magenta);
-            Thread.Sleep(150);
-
-            string userQuestion = ReadInputWithDefault("What can you ask about", "anything");
-            TypeWrite($"You can ask about {userQuestion}.", ConsoleColor.Green);
-            Thread.Sleep(150);
-
-            DrawDivider();
-            TypeWrite("Thank you for using this demo. Press any key to exit...", ConsoleColor.DarkGray);
-            Console.CursorVisible = false;
-            Console.ReadKey(true);
-        }
-
-        private static void DrawSectionHeader(string title)
-        {
-            ConsoleColor headerColor = ConsoleColor.DarkBlue;
-            ConsoleColor accentColor = ConsoleColor.White;
-            WriteColoredLine("╔" + new string('═', 50) + "╗", headerColor);
-            WriteColoredLine($"║ {title.PadRight(48)} ║", accentColor, headerColor);
-            WriteColoredLine("╚" + new string('═', 50) + "╝", headerColor);
-            Console.WriteLine();
-            Thread.Sleep(150);
-        }
-
-        private static void DrawDivider()
-        {
-            ConsoleColor dividerColor = ConsoleColor.DarkGray;
-            WriteColoredLine(new string('─', 54), dividerColor);
-            Console.WriteLine();
-            Thread.Sleep(100);
-        }
-
-        // Typing effect writer with optional color.
-        private static void TypeWrite(string text, ConsoleColor? color = null, int charDelayMs = 20)
-        {
-            ConsoleColor previous = Console.ForegroundColor;
-            if (color.HasValue) Console.ForegroundColor = color.Value;
-
-            foreach (char c in text)
-            {
-                Console.Write(c);
-                Thread.Sleep(charDelayMs);
-            }
-
-            Console.WriteLine();
-            Console.ForegroundColor = previous;
-        }
-
-        // Read input, accept default on empty/whitespace input and show a short message.
-        private static string ReadInputWithDefault(string prompt, string defaultResponse)
-        {
-            ConsoleColor promptColor = ConsoleColor.White;
-            ConsoleColor hintColor = ConsoleColor.DarkGray;
-            ConsoleColor noticeColor = ConsoleColor.Red;
-
-            // Write prompt and show default hint
-            Console.ForegroundColor = promptColor;
-            Console.Write($"{prompt} ");
-            Console.ForegroundColor = hintColor;
-            Console.Write($"(default: {defaultResponse})");
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.White;
-            Console.Write("> ");
+            // Initial User Info Prompt
+            response.DrawDivider();
+            response.TypeWrite("Please enter your name:", ConsoleColor.Yellow);
+            Console.Write("User: ");
             Console.CursorVisible = true;
-
-            string? input = Console.ReadLine()?.Trim();
+            string userName = Console.ReadLine()?.Trim();
             Console.CursorVisible = false;
 
-            if (string.IsNullOrEmpty(input))
+            if (string.IsNullOrWhiteSpace(userName))
             {
-                Console.ForegroundColor = noticeColor;
-                Console.WriteLine($"No input entered. Defaulting to '{defaultResponse}'.");
-                Console.ForegroundColor = ConsoleColor.White;
-                Thread.Sleep(200);
-                return defaultResponse;
+                userName = "User";
             }
 
-            return input;
-        }
+            response.TypeWrite($"\nWelcome, {userName}!", ConsoleColor.Green);
+            Thread.Sleep(150);
 
-        // Helper to print a full line in a color and reset background if desired.
-        private static void WriteColoredLine(string text, ConsoleColor foreground, ConsoleColor? background = null)
-        {
-            ConsoleColor prevFore = Console.ForegroundColor;
-            ConsoleColor prevBack = Console.BackgroundColor;
+            // Introductory context queries
+            string userFeeling = response.ReadInputWithDefault("How are you doing today?", "Good");
+            response.TypeWrite($"Bot: Glad to hear you are feeling '{userFeeling}', {userName}.\n", ConsoleColor.Yellow);
 
-            Console.ForegroundColor = foreground;
-            if (background.HasValue) Console.BackgroundColor = background.Value;
+            string userPurpose = response.ReadInputWithDefault("What brings you here today?", "Learning about online safety");
+            response.TypeWrite($"Bot: Excellent! Focusing on '{userPurpose}' is a great goal.\n", ConsoleColor.Magenta);
 
-            Console.WriteLine(text);
+            string userQuestion = response.ReadInputWithDefault("What topic would you like to start with?", "Passwords");
+            response.TypeWrite($"Bot: You can ask about '{userQuestion}' or topics like phishing and safe browsing.\n", ConsoleColor.Green);
 
-            Console.ForegroundColor = prevFore;
-            Console.BackgroundColor = prevBack;
+            // Main interaction loop
+            bool isRunning = true;
+            while (isRunning)
+            {
+                response.DrawDivider();
+
+                response.TypeWrite("Ask a question (or type 'exit' to quit):", ConsoleColor.White);
+                Console.Write("User: ");
+                Console.CursorVisible = true;
+                string userQuery = Console.ReadLine()?.Trim().ToLower() ?? "";
+                Console.CursorVisible = false;
+
+                if (string.IsNullOrEmpty(userQuery))
+                {
+                    response.TypeWrite("Bot: You didn't ask a question. Please try again.", ConsoleColor.Red);
+                    Thread.Sleep(150);
+                    continue;
+                }
+
+                if (userQuery == "exit" || userQuery == "quit")
+                {
+                    response.TypeWrite($"\nExiting the program. Stay safe online, {userName}!", ConsoleColor.DarkGray);
+                    Thread.Sleep(250);
+                    isRunning = false;
+                    break;
+                }
+
+                // Topic Responses
+                if (userQuery.Contains("password"))
+                {
+                    response.TypeWrite("Bot: Password Security: Use at least 12 characters combining letters, numbers, and symbols. Avoid personal dates or simple patterns!", ConsoleColor.Cyan);
+                }
+                else if (userQuery.Contains("phish") || userQuery.Contains("email"))
+                {
+                    response.TypeWrite("Bot: Phishing Prevention: Be cautious of emails demanding urgent action. Never click suspicious links or enter login details on unfamiliar pages.", ConsoleColor.Cyan);
+                }
+                else if (userQuery.Contains("browse") || userQuery.Contains("link") || userQuery.Contains("web"))
+                {
+                    response.TypeWrite("Bot: Safe Browsing: Check that website URLs start with 'https://' and look for the padlock icon before sharing sensitive info.", ConsoleColor.Cyan);
+                }
+                else if (userQuery.Contains("purpose") || userQuery.Contains("who are you"))
+                {
+                    response.TypeWrite("Bot: I am a Cybersecurity Awareness Assistant designed to help protect South African citizens against online threats.", ConsoleColor.Cyan);
+                }
+                else
+                {
+                    response.TypeWrite($"Bot: I didn't quite understand that, {userName}. Try asking about 'passwords', 'phishing', or 'safe browsing'.", ConsoleColor.Red);
+                }
+
+                Thread.Sleep(150);
+            }
+
+            response.DrawDivider();
+            response.TypeWrite("Press any key to close this window...", ConsoleColor.DarkGray);
+            Console.ReadKey(true);
         }
     }
 }

@@ -1,15 +1,11 @@
-using System.Reflection.Metadata;
+using System;
 using System.Threading;
 
 namespace PROGRAMMING
 {
     class Response
     {
-        public Response() { 
-            Console.WriteLine("");
-        }
-
-         public void DrawSectionHeader(string title)
+        public void DrawSectionHeader(string title)
         {
             ConsoleColor headerColor = ConsoleColor.DarkBlue;
             ConsoleColor accentColor = ConsoleColor.White;
@@ -28,7 +24,7 @@ namespace PROGRAMMING
             Thread.Sleep(100);
         }
 
-        // Typing effect writer with optional color.
+        // Typing effect writer with optional color
         public void TypeWrite(string text, ConsoleColor? color = null, int charDelayMs = 20)
         {
             ConsoleColor previous = Console.ForegroundColor;
@@ -44,18 +40,17 @@ namespace PROGRAMMING
             Console.ForegroundColor = previous;
         }
 
-        // Read input, accept default on empty/whitespace input and show a short message.
+        // Read input with fallback default response
         public string ReadInputWithDefault(string prompt, string defaultResponse)
         {
             ConsoleColor promptColor = ConsoleColor.White;
             ConsoleColor hintColor = ConsoleColor.DarkGray;
             ConsoleColor noticeColor = ConsoleColor.Red;
 
-            // Write prompt and show default hint
             Console.ForegroundColor = promptColor;
             Console.Write($"{prompt} ");
             Console.ForegroundColor = hintColor;
-            Console.Write("default: "+ defaultResponse);
+            Console.Write("default: " + defaultResponse);
             Console.WriteLine();
             Console.ForegroundColor = ConsoleColor.White;
             Console.Write("User:  ");
@@ -76,7 +71,7 @@ namespace PROGRAMMING
             return input;
         }
 
-        // Helper to print a full line in a color and reset background if desired.
+        // Print full line with explicit colors
         public void WriteColoredLine(string text, ConsoleColor foreground, ConsoleColor? background = null)
         {
             ConsoleColor prevFore = Console.ForegroundColor;
@@ -89,8 +84,6 @@ namespace PROGRAMMING
 
             Console.ForegroundColor = prevFore;
             Console.BackgroundColor = prevBack;
-            
-                
-            }
+        }
     }
 }
